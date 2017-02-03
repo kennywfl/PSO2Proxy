@@ -431,7 +431,10 @@ class GChat(commands.Command):
                 ircBot.send_global_message(data.clients.connectedClients[client.playerId].ship, data.players.playerList[client.playerId][0].encode('utf-8'), self.args[3:].encode('utf-8'))
         if telegramEnabled:
             if telegramBot is not None:
-                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(data.clients.connectedClients[client.playerId].ship, data.players.playerList[client.playerId][0].encode('utf-8')))
+                telegramBot.sendMessage(chat_id=201713844,
+                                        text=self.build_string_for_telegram(data.clients.connectedClients[client.playerId].ship,
+                                                                            data.players.playerList[client.playerId][0].encode('utf-8')),
+                                        parse_mode="Markdown")
         fb = ("G-%02i") % data.clients.connectedClients[client.playerId].ship
         shipl = ShipLabel.get(fb, fb)
         for client_data in data.clients.connectedClients.values():
@@ -450,7 +453,8 @@ class GChat(commands.Command):
                 ircBot.send_global_message(0, ShipLabel["Console"], self.args[2:].encode('utf-8'))
         if telegramEnabled:
             if telegramBot is not None:
-                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(ShipLabel["Console"], "", True))
+                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(ShipLabel["Console"],
+                                        "Admin", True), parse_mode="Markdown")
         TCPacket = packetFactory.TeamChatPacket(0x999, gconsole, gconsole, self.args[2:]).build()
         SMPacket = packetFactory.SystemMessagePacket("%s %s%s" % (gconsole, gchatSettings['prefix'], self.args[2:]), 0x3).build()
         for client in data.clients.connectedClients.values():
@@ -462,6 +466,6 @@ class GChat(commands.Command):
         return "[GlobalChat] %s %s" % (gconsole, self.args[2:])
 
     def build_string_for_telegram(self, ship, playerid, fromconsole=False):
-        return "[%s] %s\n%s" % (ship, playerid,
-                                self.args[2:].encode('utf-8') if fromconsole else self.args[2:].encode('utf-8'))
+        return "*[%s%s] %s*\n%s" % ("Console" if fromconsole else "Ship ", "" if fromconsole else ship, playerid,
+                                    self.args[2:].encode('utf-8') if fromconsole else self.args[2:].encode('utf-8'))
 

@@ -7,6 +7,7 @@ import data.players
 import json
 import packetFactory
 import plugins
+import telegram
 from PSO2DataTools import check_irc_with_pso2
 from PSO2DataTools import check_pso2_with_irc
 from PSO2DataTools import replace_irc_with_pso2
@@ -16,6 +17,7 @@ from twisted.internet import reactor
 from twisted.internet import task
 from twisted.python import log
 from twisted.words.protocols import irc
+from telegram.ext import MessageHandler, Filters, Updater, Job
 
 try:
     import PSO2PDConnector
@@ -37,6 +39,16 @@ ircServiceName = ircSettings.get_key('svname')
 
 gchatSettings = YAMLConfig("cfg/gchat.config.yml", {'displayMode': 0, 'bubblePrefix': '', 'systemPrefix': '{whi}', 'prefix': ''}, True)
 
+telegramSettings = YAMLConfig("cfg/telegram-bot.config.yml", {'enabled': False, 'token': "", 'botId': ""}, True)
+
+telegramBot = None
+telegramEnabled = telegramSettings.get_key('enabled')
+telegramToken = telegramSettings.get_key('token')
+
+if telegramEnabled:
+    telegramUpdater = Updater(token=telegramToken)
+    telegramDispatcher = telegramUpdater.dispatcher
+    telegramBot = telegram.Bot(token=telegramToken)
 
 def doRedisGchat(message):
     gchatMsg = json.loads(message['data'])
@@ -402,6 +414,7 @@ class UnmuteSomebody(commands.Command):
 class GChat(commands.Command):
     def call_from_client(self, client):
         global ircMode
+        global telegramEnabled
         if not data.clients.connectedClients[client.playerId].preferences.get_preference('globalChat'):
             client.send_crypto_packet(packetFactory.SystemMessagePacket(
                 "[GlobalChat] You do not have global chat enabled, and can not send a global message.", 0x3).build())
@@ -416,6 +429,9 @@ class GChat(commands.Command):
             global ircBot
             if ircBot is not None:
                 ircBot.send_global_message(data.clients.connectedClients[client.playerId].ship, data.players.playerList[client.playerId][0].encode('utf-8'), self.args[3:].encode('utf-8'))
+        if telegramEnabled:
+            if telegramBot is not None:
+                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(data.clients.connectedClients[client.playerId].ship, data.players.playerList[client.playerId][0].encode('utf-8')))
         fb = ("G-%02i") % data.clients.connectedClients[client.playerId].ship
         shipl = ShipLabel.get(fb, fb)
         for client_data in data.clients.connectedClients.values():
@@ -432,6 +448,9 @@ class GChat(commands.Command):
             global ircBot
             if ircBot is not None:
                 ircBot.send_global_message(0, ShipLabel["Console"], self.args[2:].encode('utf-8'))
+        if telegramEnabled:
+            if telegramBot is not None:
+                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(ShipLabel["Console"], "", True))
         TCPacket = packetFactory.TeamChatPacket(0x999, gconsole, gconsole, self.args[2:]).build()
         SMPacket = packetFactory.SystemMessagePacket("%s %s%s" % (gconsole, gchatSettings['prefix'], self.args[2:]), 0x3).build()
         for client in data.clients.connectedClients.values():
@@ -441,3 +460,8 @@ class GChat(commands.Command):
                 else:
                     client.get_handle().send_crypto_packet(SMPacket)
         return "[GlobalChat] %s %s" % (gconsole, self.args[2:])
+
+    def build_string_for_telegram(self, ship, playerid, fromconsole=False):
+        return "[%s] %s\n%s" % (ship, playerid,
+                                self.args[2:].encode('utf-8') if fromconsole else self.args[2:].encode('utf-8'))
+

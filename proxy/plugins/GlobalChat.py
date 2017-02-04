@@ -60,11 +60,11 @@ def onReceiveTelegramChat(bot, update):
                 client.get_handle().send_crypto_packet(
                     packetFactory.TeamChatPacket(update.message.from_user.id,
                                                  "[Telegram] %s" % update.message.from_user.username,
-                                                 "[Telegram] %s" % update.message.from_user.username, "* %s%s" % (
+                                                 "[Telegram] %s" % update.message.from_user.username, "%s%s" % (
                                                      client.preferences.get_preference('globalChatPrefix'),
                                                      msg.decode('utf-8', 'ignore'))).build())
             else:
-                client.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket("[Telegram] <%s> * %s" % (
+                client.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket("[Telegram] <%s> %s" % (
                     update.message.from_user.username, "%s%s" % (client.preferences.get_preference('globalChatPrefix'),
                                                                  msg.decode('utf-8', 'ignore'))), 0x3).build())
 

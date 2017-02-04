@@ -60,7 +60,7 @@ def onReceiveTelegramChat(bot, update):
                 client.get_handle().send_crypto_packet(
                     packetFactory.TeamChatPacket(update.message.from_user.id,
                                                  "[Telegram] %s" % update.message.from_user.username,
-                                                 "[Telegram] %s" % update.message.from_user.username, "%s%s" % (
+                                                 "[Telegram] %s" % update.message.from_user.username, "b %s%s" % (
                                                      client.preferences.get_preference('globalChatPrefix'),
                                                      msg.decode('utf-8', 'ignore'))).build())
             else:
@@ -280,7 +280,6 @@ def create_preferences():
         bot = GIRCFactory(ircChannel)
         reactor.connectTCP(ircServer[0], ircServer[1], bot)
     if telegramEnabled:
-        print "telegram enabled"
         handler = MessageHandler(Filters.text, onReceiveTelegramChat)
         telegramDispatcher.add_handler(handler)
         telegramUpdater.start_polling()

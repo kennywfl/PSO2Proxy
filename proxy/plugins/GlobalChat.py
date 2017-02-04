@@ -42,15 +42,18 @@ ircServiceName = ircSettings.get_key('svname')
 gchatSettings = YAMLConfig("cfg/gchat.config.yml",
                            {'displayMode': 0, 'bubblePrefix': '', 'systemPrefix': '{whi}', 'prefix': ''}, True)
 
-telegramSettings = YAMLConfig("cfg/telegram-bot.config.yml", {'enabled': False, 'token': "", 'botId': ""}, True)
+telegramSettings = YAMLConfig("cfg/telegram-bot.config.yml", {'enabled': False, 'output': True, 'token': "", 'botId': ""}, True)
 
 telegramBot = None
 telegramEnabled = telegramSettings.get_key('enabled')
 telegramToken = telegramSettings.get_key('token')
+telegramOutput = telegramSettings.get_key('output')
 
 
 def onReceiveTelegramChat(bot, update):
     msg = update.message.text
+    if telegramOutput:
+        print("[Telegram] <%s> %s" % (update.message.from_user.username, update.message.text))
     for client in data.clients.connectedClients.values():
         if client.preferences.get_preference('globalChat') and client.get_handle() is not None:
             if lookup_gchatmode(client.preferences) == 0:
@@ -70,9 +73,6 @@ if telegramEnabled:
     telegramUpdater = Updater(token=telegramToken)
     telegramDispatcher = telegramUpdater.dispatcher
     telegramBot = telegram.Bot(token=telegramToken)
-    chatHandler = MessageHandler(Filters.text, onReceiveTelegramChat)
-    telegramDispatcher.add_handler(chatHandler)
-
 
 def doRedisGchat(message):
     gchatMsg = json.loads(message['data'])
@@ -274,15 +274,16 @@ def lookup_gchatmode(client_preferences):
 @plugins.on_start_hook
 def create_preferences():
     global ircMode
-    global telegramEnabled
     if ircMode:
         global ircChannel
         global ircServer
         bot = GIRCFactory(ircChannel)
         reactor.connectTCP(ircServer[0], ircServer[1], bot)
     if telegramEnabled:
-        if telegramUpdater is not None:
-            telegramUpdater.start_polling()
+        print "telegram enabled"
+        handler = MessageHandler(Filters.text, onReceiveTelegramChat)
+        telegramDispatcher.add_handler(handler)
+        telegramUpdater.start_polling()
 
 
 # noinspection PyUnresolvedReferences

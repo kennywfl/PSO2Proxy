@@ -48,7 +48,7 @@ telegramBot = None
 telegramEnabled = telegramSettings.get_key('enabled')
 telegramToken = telegramSettings.get_key('token')
 telegramOutput = telegramSettings.get_key('output')
-telegramBotId = telegramSettings.get_key('botId')
+
 
 def onReceiveTelegramChat(bot, update):
     msg = update.message.text
@@ -542,7 +542,7 @@ class GChat(commands.Command):
                                            self.args[3:].encode('utf-8'))
         if telegramEnabled:
             if telegramBot is not None:
-                telegramBot.sendMessage(chat_id=telegramBotId,
+                telegramBot.sendMessage(chat_id=201713844,
                                         text=self.build_string_for_telegram(
                                             data.clients.connectedClients[client.playerId].ship,
                                             data.players.playerList[client.playerId][0].encode('utf-8')),
@@ -577,7 +577,7 @@ class GChat(commands.Command):
                 ircBot.send_global_message(0, ShipLabel["Console"], self.args[2:].encode('utf-8'))
         if telegramEnabled:
             if telegramBot is not None:
-                telegramBot.sendMessage(chat_id=telegramBotId, text=self.build_string_for_telegram(ShipLabel["Console"],
+                telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(ShipLabel["Console"],
                                                                                                "Admin", True),
                                         parse_mode="Markdown")
         TCPacket = packetFactory.TeamChatPacket(0x999, gconsole, gconsole, self.args[2:]).build()

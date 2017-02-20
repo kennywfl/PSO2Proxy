@@ -42,7 +42,8 @@ ircServiceName = ircSettings.get_key('svname')
 gchatSettings = YAMLConfig("cfg/gchat.config.yml",
                            {'displayMode': 0, 'bubblePrefix': '', 'systemPrefix': '{whi}', 'prefix': ''}, True)
 
-telegramSettings = YAMLConfig("cfg/telegram-bot.config.yml", {'enabled': False, 'output': True, 'token': "", 'botId': ""}, True)
+telegramSettings = YAMLConfig("cfg/telegram-bot.config.yml",
+                              {'enabled': False, 'output': True, 'token': "", 'botId': ""}, True)
 
 telegramBot = None
 telegramEnabled = telegramSettings.get_key('enabled')
@@ -74,6 +75,7 @@ if telegramEnabled:
     telegramDispatcher = telegramUpdater.dispatcher
     telegramBot = telegram.Bot(token=telegramToken)
 
+
 def doRedisGchat(message):
     gchatMsg = json.loads(message['data'])
     fb = ("G-%02i") % gchatMsg['ship']
@@ -90,13 +92,14 @@ def doRedisGchat(message):
                     client.get_handle().send_crypto_packet(
                         packetFactory.TeamChatPacket(gchatMsg['playerId'], "[GIRC] %s" % gchatMsg['playerName'],
                                                      "[GIRC] %s" % gchatMsg['playerName'], "%s%s" % (
-                                                     client.preferences.get_preference('globalChatPrefix'),
-                                                     replace_irc_with_pso2(strgchatmsg).decode('utf-8',
-                                                                                               'ignore'))).build())
+                                                         client.preferences.get_preference('globalChatPrefix'),
+                                                         replace_irc_with_pso2(strgchatmsg).decode('utf-8',
+                                                                                                   'ignore'))).build())
                 else:
                     client.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket("[GIRC] <%s> %s" % (
-                    gchatMsg['playerName'], "%s%s" % (client.preferences.get_preference('globalChatPrefix'),
-                                                      replace_irc_with_pso2(strgchatmsg).decode('utf-8', 'ignore'))),
+                        gchatMsg['playerName'], "%s%s" % (client.preferences.get_preference('globalChatPrefix'),
+                                                          replace_irc_with_pso2(strgchatmsg).decode('utf-8',
+                                                                                                    'ignore'))),
                                                                                              0x3).build())
     else:
         if ircMode:
@@ -109,17 +112,21 @@ def doRedisGchat(message):
                 if lookup_gchatmode(client_data.preferences) == 0:
                     client_data.get_handle().send_crypto_packet(packetFactory.TeamChatPacket(gchatMsg['playerId'],
                                                                                              "(%s) [%s] %s" % (
-                                                                                             gchatMsg['server'], shipl,
-                                                                                             gchatMsg['playerName']),
+                                                                                                 gchatMsg['server'],
+                                                                                                 shipl,
+                                                                                                 gchatMsg[
+                                                                                                     'playerName']),
                                                                                              gchatMsg['playerName'],
                                                                                              "%s%s" % (
-                                                                                             client_data.preferences.get_preference(
-                                                                                                 'globalChatPrefix'),
-                                                                                             gchatMsg['text'])).build())
+                                                                                                 client_data.preferences.get_preference(
+                                                                                                     'globalChatPrefix'),
+                                                                                                 gchatMsg[
+                                                                                                     'text'])).build())
                 else:
                     client_data.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket(
                         "(%s) [%s] <%s> %s" % (gchatMsg['server'], shipl, gchatMsg['playerName'], "%s%s" % (
-                        client_data.preferences.get_preference('globalChatPrefix'), gchatMsg['text'])), 0x3).build())
+                            client_data.preferences.get_preference('globalChatPrefix'), gchatMsg['text'])),
+                        0x3).build())
 
 
 if redisEnabled:
@@ -177,7 +184,7 @@ if ircMode:
             if channel == self.factory.channel:
                 if self.ircOutput is True:
                     print("[GlobalChat] [IRC] <%s> %s" % (
-                    user.split("!")[0], replace_irc_with_pso2(msg).decode('utf-8', 'ignore')))
+                        user.split("!")[0], replace_irc_with_pso2(msg).decode('utf-8', 'ignore')))
                 if redisEnabled:
                     PSO2PDConnector.db_conn.publish("plugin-message-gchat", json.dumps(
                         {'sender': 1, 'text': replace_irc_with_pso2(msg).decode('utf-8', 'ignore'),
@@ -190,14 +197,14 @@ if ircMode:
                                 packetFactory.TeamChatPacket(self.get_user_id(user.split("!")[0]),
                                                              "[GIRC] %s" % user.split("!")[0],
                                                              "[GIRC] %s" % user.split("!")[0], "%s%s" % (
-                                                             client.preferences.get_preference('globalChatPrefix'),
-                                                             replace_irc_with_pso2(msg).decode('utf-8',
-                                                                                               'ignore'))).build())
+                                                                 client.preferences.get_preference('globalChatPrefix'),
+                                                                 replace_irc_with_pso2(msg).decode('utf-8',
+                                                                                                   'ignore'))).build())
                         else:
                             client.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket(
                                 "[GIRC] <%s> %s" % (user.split("!")[0], "%s%s" % (
-                                client.preferences.get_preference('globalChatPrefix'),
-                                replace_irc_with_pso2(msg).decode('utf-8', 'ignore'))), 0x3).build())
+                                    client.preferences.get_preference('globalChatPrefix'),
+                                    replace_irc_with_pso2(msg).decode('utf-8', 'ignore'))), 0x3).build())
             else:
                 print("[IRC] <%s> %s" % (user, msg))
 
@@ -223,14 +230,14 @@ if ircMode:
                                 packetFactory.TeamChatPacket(self.get_user_id(user.split("!")[0]),
                                                              "[GIRC] %s" % user.split("!")[0],
                                                              "[GIRC] %s" % user.split("!")[0], "* %s%s" % (
-                                                             client.preferences.get_preference('globalChatPrefix'),
-                                                             replace_irc_with_pso2(msg).decode('utf-8',
-                                                                                               'ignore'))).build())
+                                                                 client.preferences.get_preference('globalChatPrefix'),
+                                                                 replace_irc_with_pso2(msg).decode('utf-8',
+                                                                                                   'ignore'))).build())
                         else:
                             client.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket(
                                 "[GIRC] <%s> * %s" % (user.split("!")[0], "%s%s" % (
-                                client.preferences.get_preference('globalChatPrefix'),
-                                replace_irc_with_pso2(msg).decode('utf-8', 'ignore'))), 0x3).build())
+                                    client.preferences.get_preference('globalChatPrefix'),
+                                    replace_irc_with_pso2(msg).decode('utf-8', 'ignore'))), 0x3).build())
 
         def send_global_message(self, ship, user, message, server=None):
             if not check_pso2_with_irc(message):
@@ -298,14 +305,14 @@ def check_config(user):
         if client_preferences.get_preference('globalChat'):
             user.send_crypto_packet(packetFactory.SystemMessagePacket(
                 "[Proxy] {yel}Global chat is enabled. Use %sg <Message> to chat, %sgoff to disable it, and %sgmode to toggle team/system chat mode." % (
-                config.globalConfig.get_key('commandPrefix'), config.globalConfig.get_key('commandPrefix'),
-                config.globalConfig.get_key('commandPrefix')),
+                    config.globalConfig.get_key('commandPrefix'), config.globalConfig.get_key('commandPrefix'),
+                    config.globalConfig.get_key('commandPrefix')),
                 0x3).build())
         else:
             user.send_crypto_packet(packetFactory.SystemMessagePacket(
                 "[Proxy] {yel}Global chat is disabled. Use %sgon to enable it, %sg <Message> to chat, and %sgmode to toggle team/system chat mode." % (
-                config.globalConfig.get_key('commandPrefix'), config.globalConfig.get_key('commandPrefix'),
-                config.globalConfig.get_key('commandPrefix')),
+                    config.globalConfig.get_key('commandPrefix'), config.globalConfig.get_key('commandPrefix'),
+                    config.globalConfig.get_key('commandPrefix')),
                 0x3).build())
         if not client_preferences.has_preference("gchatMode"):
             client_preferences['gchatMode'] = -1
@@ -545,8 +552,7 @@ class GChat(commands.Command):
                 telegramBot.sendMessage(chat_id=201713844,
                                         text=self.build_string_for_telegram(
                                             data.clients.connectedClients[client.playerId].ship,
-                                            data.players.playerList[client.playerId][0].encode('utf-8')),
-                                        parse_mode="Markdown")
+                                            data.players.playerList[client.playerId][0].encode('utf-8')))
         fb = ("G-%02i") % data.clients.connectedClients[client.playerId].ship
         shipl = ShipLabel.get(fb, fb)
         for client_data in data.clients.connectedClients.values():
@@ -560,13 +566,15 @@ class GChat(commands.Command):
                                                                                              data.players.playerList[
                                                                                                  client.playerId][0],
                                                                                              "%s%s" % (
-                                                                                             client_data.preferences.get_preference(
-                                                                                                 'globalChatPrefix'),
-                                                                                             self.args[3:])).build())
+                                                                                                 client_data.preferences.get_preference(
+                                                                                                     'globalChatPrefix'),
+                                                                                                 self.args[
+                                                                                                 3:])).build())
                 else:
                     client_data.get_handle().send_crypto_packet(packetFactory.SystemMessagePacket("[%s] <%s> %s" % (
-                    shipl, data.players.playerList[client.playerId][0],
-                    "%s%s" % (client_data.preferences.get_preference('globalChatPrefix'), self.args[3:])), 0x3).build())
+                        shipl, data.players.playerList[client.playerId][0],
+                        "%s%s" % (client_data.preferences.get_preference('globalChatPrefix'), self.args[3:])),
+                                                                                                  0x3).build())
 
     def call_from_console(self):
         global ircMode
@@ -578,8 +586,7 @@ class GChat(commands.Command):
         if telegramEnabled:
             if telegramBot is not None:
                 telegramBot.sendMessage(chat_id=201713844, text=self.build_string_for_telegram(ShipLabel["Console"],
-                                                                                               "Admin", True),
-                                        parse_mode="Markdown")
+                                                                                               "Admin", True))
         TCPacket = packetFactory.TeamChatPacket(0x999, gconsole, gconsole, self.args[2:]).build()
         SMPacket = packetFactory.SystemMessagePacket("%s %s%s" % (gconsole, gchatSettings['prefix'], self.args[2:]),
                                                      0x3).build()
@@ -592,5 +599,5 @@ class GChat(commands.Command):
         return "[GlobalChat] %s %s" % (gconsole, self.args[2:])
 
     def build_string_for_telegram(self, ship, playerid, fromconsole=False):
-        return "*[%s%s] %s*\n%s" % ("Console" if fromconsole else "Ship ", "" if fromconsole else ship, playerid,
-                                    self.args[2:].encode('utf-8') if fromconsole else self.args[2:].encode('utf-8'))
+        return "[%s%s] %s\n%s" % ("Console" if fromconsole else "Ship ", "" if fromconsole else ship, playerid,
+                                  self.args[2:].encode('utf-8') if fromconsole else self.args[2:].encode('utf-8'))

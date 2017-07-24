@@ -2,4 +2,3 @@ Twisted >= 14.0.0
 pycrypto >= 2.6.1
 pyyaml
 faulthandler
-python-telegram-bot

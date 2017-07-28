@@ -78,7 +78,7 @@ def logdebug(message):
 
 def EQBody(body):  # 0 is ship1
     try:
-        APIData = json.loads(str(body.decode("utf-8")))
+        APIData = json.loads(str(body.decode('utf-8')))
     except Exception as e:  # If we can't load a JSON then something went wrong with the API
         print("[EQ Alert] Bad API response, %s" % e)
         return

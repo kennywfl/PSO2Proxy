@@ -180,9 +180,4 @@ def scrape_ship_packet(ship_ip, ship_port, destination_ip):
     s.close()
     data.flush()
     data = bytearray(data.getvalue())
-    # Hardcoded ship count, fix this!
-    pos = 0x10
-    for x in xrange(1, 10):
-        struct.pack_into('BBBB', data, pos + 0x20, int(o1), int(o2), int(o3), int(o4))
-        pos += 0x34
     return str(data)

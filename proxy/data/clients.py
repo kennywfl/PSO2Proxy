@@ -4,7 +4,6 @@ import packetFactory
 import sqlite3
 from threading import Lock
 import twisted
-from twisted.python import log
 import yaml
 
 from ships import get_ship_from_port
@@ -131,7 +130,7 @@ class ClientPreferences(object):
         try:
             dbManager.update_user_cache(self.segaid, self._config)  # Incase it doesn't stick I guess
         except Exception as e:
-            log.msg("saving data on player quit return an error: %s" % (e))
+            print("saving data on player quit return an error: %s" % (e))
 
 
 def add_client(handle):

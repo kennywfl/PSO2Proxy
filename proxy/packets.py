@@ -63,7 +63,10 @@ def key_packet(context, data):
     decrypted = rsaDecrypter.decrypt(rsa_blob)
     if decrypted is None:
         print(
-            "[KeyPacket] Could not decrypt RSA for client %s, Perhaps their client's key is unmodified? Hanging up." % context.transport.getPeer().host)
+            "[KeyPacket] Could not decrypt RSA for client {}, Perhaps their client's key is unmodified? Hanging up.".format(
+                context.transport.getPeer().host
+            )
+        )
         brokenlist.append(context.transport.getPeer().host)
         context.transport.loseConnection()
         return None
@@ -178,8 +181,15 @@ def chat_packet(context, data):
         'utf-16')  # This is technically improper. Should use the xor byte to check string length (See packetReader)
     if player_id == 0:  # Probably the wrong way to check, but check if a PSO2 client sent this packet
         message = message.rstrip('\0')
-        if len(message) > 2 and message.startswith(config.globalConfig.get_key('commandPrefix')):
-            command = (message.split(' ')[0])[len(config.globalConfig.get_key('commandPrefix')):]  # Get the first word (the command) and strip the prefix'
+        if len(message) > 2 and message.startswith(config.globalConfig['commandPrefix']):
+            command = (
+                message.split(' ')[0]
+            )[
+                len(
+                    config.globalConfig['commandPrefix']
+                ):
+            ]
+            # Get the first word (the command) and strip the prefix'
             if command in commands.commandList:
                 try:
                     if commands.commandList[command][2] and not config.is_admin(context.myUsername):
@@ -189,7 +199,12 @@ def chat_packet(context, data):
                     cmd_class = commands.commandList[command][0]
                     cmd_class(message).call_from_client(context)  # Lazy...
                 except Exception as e:
-                    context.send_crypto_packet(packetFactory.SystemMessagePacket("[Proxy] {red}An error occured when trying to run this command.", 0x3).build())
+                    context.send_crypto_packet(
+                        packetFactory.SystemMessagePacket(
+                            "[Proxy] {red}An error occured when trying to run this command.",
+                            0x3
+                        ).build()
+                    )
                     e = traceback.format_exc()
                     context.send_crypto_packet(packetFactory.SystemMessagePacket("[{red}ERROR{def}] %s" % e, 0x3).build())
             elif command in plugin_manager.commands:
@@ -201,7 +216,12 @@ def chat_packet(context, data):
                     cmd_class = plugin_manager.commands[command][0]
                     cmd_class(message).call_from_client(context)
                 except Exception as e:
-                    context.send_crypto_packet(packetFactory.SystemMessagePacket("[Proxy] {red}An error occured when trying to run this command.", 0x3).build())
+                    context.send_crypto_packet(
+                        packetFactory.SystemMessagePacket(
+                            "[Proxy] {red}An error occured when trying to run this command.",
+                            0x3
+                        ).build()
+                    )
                     e = traceback.format_exc()
                     context.send_crypto_packet(packetFactory.SystemMessagePacket("[{red}ERROR{def}] %s" % e, 0x3).build())
             else:
@@ -283,7 +303,8 @@ def player_info_packet(context, data):
 @PacketHandler(0x1c, 0x1f)
 def player_name_packet(context, data):
     player_id = struct.unpack_from('I', data, 0xC)[0]
-    if player_id not in players.playerList and player_id in clients.connectedClients:  # Only log for connected clients. UNTESTED?!
+    # Only log for connected clients. UNTESTED?!
+    if (player_id not in players.playerList and player_id in clients.connectedClients):
         player_name = data[0x14:0x56].decode('utf-16').rstrip("\0")
         if verbose:
             print("[PlayerData] Found new player %s with player ID %i" % (player_name, player_id))
